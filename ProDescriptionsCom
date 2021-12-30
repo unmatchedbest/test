@@ -1,0 +1,43 @@
+import React, {useMemo} from 'react';
+import ProDescriptions from '@ant-design/pro-descriptions';
+import BznFileView from '@/components/BznFileView';
+
+const ProDescriptionsCom: React.FC<any> = (props: any) => {
+  const {configs, configsData, title = ''} = props;
+
+  // 配置项
+  const editConfigs = useMemo(() => {
+    if (Array.isArray(configs)) {
+      return configs.map((item: any) => {
+        if (!item.type) {
+          return item;
+        }
+        if (item.type === 'img') {
+          return {...item, render: (value: any[] | string) => <BznFileView data={Array.isArray(value) ? value : [{filePath: value}]}/>};
+        }
+        return item;
+      });
+    }
+    return [];
+  }, [configs]);
+
+  // 数据项
+  const editConfigsData = useMemo(() => {
+    if (Object.prototype.toString.call(configsData) === '[object Object]') {
+      return configsData;
+    }
+    return {};
+  }, [configsData]);
+
+  return (
+    <ProDescriptions title={title}>
+      {editConfigs.map((item: any) => (
+        item.hide ? null : <ProDescriptions.Item key={item.key} label={item.label}>
+          {item.render ? item.render(editConfigsData[item.key]) : (editConfigsData[item.key] || '--')}{(item.otherHtml && item.byValue) ? item.otherHtml() : ''}
+        </ProDescriptions.Item>
+      ))}
+    </ProDescriptions>
+  );
+};
+
+export default ProDescriptionsCom;
